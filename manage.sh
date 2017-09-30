@@ -187,7 +187,7 @@ add_to_git() {
 }
 
 test_() {
-  if [ $# != 1 ]; then
+  if [ $# != 2 ]; then
     echo "Usage: $0 <LANG> <problem_number>" 1>&2
     exit 1
   fi
@@ -205,7 +205,7 @@ test_() {
   isExist ${OUTPUT}
 
   for test_case in $(ls ${INPUT}); do
-    diff <(cat ${INPUT}/${test_case} | run ${L} ${SOURCE}) <(cat ${OUTPUT}/${test_case})
+    diff <(cat ${INPUT}/${test_case} | run ${L} ${PROBLEM}) <(cat ${OUTPUT}/${test_case})
     if [ $? != 0 ]; then
       echo -e "test case: ${test_case}  --  Condition RED...\n" 1>&2
     else
