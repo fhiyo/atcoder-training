@@ -244,7 +244,7 @@ makeEnv() {
 }
 
 lint() {
-  # TODO(f_hyodo): Add lint tool for common lisp and python3.
+  # TODO(fhiyo): Add lint tool for common lisp and python3.
 
   if [ $# != 2 ]; then
     echo "Usage: $0 <LANG> <problem_number>" 1>&2
@@ -258,8 +258,11 @@ lint() {
 
   isExist ${SOURCE}
   if [ ${L} == ${LANG_[0]} ]; then
+    # FIXME(fhiyo): Use lint tool (sblint not running in my environment)
     # sblint: https://github.com/fukamachi/sblint
-    sblint ${SOURCE}
+    # sblint ${SOURCE}
+    echo "Under construction..."
+    :
   elif [ ${L} == ${LANG_[1]} ]; then
     hlint ${SOURCE}
   elif [ ${L} == ${LANG_[2]} ]; then
