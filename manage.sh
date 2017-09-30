@@ -404,7 +404,7 @@ for opt in "$@"; do
       fi
       prob_number="$2"
       shift 2
-      add-input ${lang} ${prob_number}
+      add-input ${prob_number}
       ;;
 
      '--add-output' )
@@ -414,7 +414,7 @@ for opt in "$@"; do
       fi
       prob_number="$2"
       shift 2
-      add-output ${lang} ${prob_number}
+      add-output ${prob_number}
       ;;
   esac
 done
