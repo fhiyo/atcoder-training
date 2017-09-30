@@ -143,7 +143,8 @@ run() {
   declare -r SOURCE=$(sourcePath ${L} ${PROBLEM})
 
   if [ ${L} == ${LANG_[0]} ]; then
-    clisp ${SOURCE}
+    # Use sbcl
+    sbcl --script ${SOURCE}
   elif [ ${L} == ${LANG_[1]} ]; then
     ghc ${SOURCE}
     ./${SOURCE/.hs/}
