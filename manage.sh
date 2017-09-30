@@ -257,11 +257,12 @@ lint() {
 
   isExist ${SOURCE}
   if [ ${L} == ${LANG_[0]} ]; then
-    :
+    # sblint: https://github.com/fukamachi/sblint
+    sblint ${SOURCE}
   elif [ ${L} == ${LANG_[1]} ]; then
     hlint ${SOURCE}
   elif [ ${L} == ${LANG_[2]} ]; then
-    :
+    flake8 ${SOURCE}
   else
     echo "LANG must be one of the following: ${LANG_}" 1>&2
     exit 1
