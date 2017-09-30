@@ -53,15 +53,15 @@ isExist() {
 }
 
 sourcePath() {
-  local readonly l_=$1
-  local readonly problem_=$2
+  declare -r L=$1
+  declare -r PROBLEM=$2
 
-  if [ ${l_} == ${LANG_[0]} ]; then
-    readonly local SOURCE="src/${l_}/${problem_}/${problem_}${LANG_EXT[0]}"
-  elif [ ${l_} == ${LANG_[1]} ]; then
-    readonly local SOURCE="src/${l_}/${problem_}/${problem_}${LANG_EXT[1]}"
-  elif [ ${l_} == ${LANG_[2]} ]; then
-    readonly local SOURCE="src/${l_}/${problem_}/${problem_}${LANG_EXT[2]}"
+  if [ ${L} == ${LANG_[0]} ]; then
+    declare -r SOURCE="src/${L}/${PROBLEM}/${PROBLEM}${LANG_EXT[0]}"
+  elif [ ${L} == ${LANG_[1]} ]; then
+    declare -r SOURCE="src/${L}/${PROBLEM}/${PROBLEM}${LANG_EXT[1]}"
+  elif [ ${L} == ${LANG_[2]} ]; then
+    declare -r SOURCE="src/${L}/${PROBLEM}/${PROBLEM}${LANG_EXT[2]}"
   else
     echo "LANG must be one of the following: ${LANG_}" 1>&2
     exit 1
@@ -76,8 +76,8 @@ generate-new-test-number() {
     exit 1
   fi
 
-  readonly local PROBLEM_=$1
-  readonly local DIR="test/${PROBLEM_}/$2"
+  declare -r PROBLEM_=$1
+  declare -r DIR="test/${PROBLEM_}/$2"
 
   isExist ${DIR}
 
@@ -95,8 +95,8 @@ add-input() {
     exit 1
   fi
 
-  readonly local PROBLEM=$1
-  readonly local INPUT="test/${PROBLEM}/input"
+  declare -r PROBLEM=$1
+  declare -r INPUT="test/${PROBLEM}/input"
 
   isExist ${INPUT}
   generate-new-test-number ${PROBLEM} "input"
@@ -109,8 +109,8 @@ add-output() {
     exit 1
   fi
 
-  readonly local PROBLEM=$1
-  readonly local OUTPUT="test/${PROBLEM}/output"
+  declare -r PROBLEM=$1
+  declare -r OUTPUT="test/${PROBLEM}/output"
 
   isExist ${OUTPUT}
   generate-new-test-number ${PROBLEM} "output"
@@ -123,9 +123,9 @@ edit() {
     exit 1
   fi
 
-  readonly local L=$1
-  readonly local PROBLEM=$2
-  readonly local SOURCE=$(sourcePath ${L} ${PROBLEM})
+  declare -r L=$1
+  declare -r PROBLEM=$2
+  declare -r SOURCE=$(sourcePath ${L} ${PROBLEM})
 
   isExist ${SOURCE}
   vim ${SOURCE}
@@ -137,10 +137,10 @@ run() {
     exit 1
   fi
 
-  readonly local L=$1
-  readonly local PROBLEM=$2
+  declare -r L=$1
+  declare -r PROBLEM=$2
 
-  readonly local SOURCE=$(sourcePath ${L} ${PROBLEM})
+  declare -r SOURCE=$(sourcePath ${L} ${PROBLEM})
 
   if [ ${L} == ${LANG_[0]} ]; then
     clisp ${SOURCE}
@@ -161,12 +161,12 @@ add_to_git() {
     exit 1
   fi
 
-  readonly local L=$1
-  readonly local PROBLEM=$2
-  readonly local INPUT="test/${PROBLEM}/input"
-  readonly local OUTPUT="test/${PROBLEM}/output"
+  declare -r L=$1
+  declare -r PROBLEM=$2
+  declare -r INPUT="test/${PROBLEM}/input"
+  declare -r OUTPUT="test/${PROBLEM}/output"
 
-  readonly local SOURCE=$(sourcePath ${L} ${PROBLEM})
+  declare -r SOURCE=$(sourcePath ${L} ${PROBLEM})
 
   isExist ${SOURCE}
   isExist ${INPUT}
@@ -192,13 +192,13 @@ test_() {
     exit 1
   fi
 
-  readonly local L=$1
-  readonly local PROBLEM=$2
+  declare -r L=$1
+  declare -r PROBLEM=$2
 
-  readonly local INPUT="test/${PROBLEM}/input"
-  readonly local OUTPUT="test/${PROBLEM}/output"
+  declare -r INPUT="test/${PROBLEM}/input"
+  declare -r OUTPUT="test/${PROBLEM}/output"
 
-  readonly local SOURCE=$(sourcePath ${L} ${PROBLEM})
+  declare -r SOURCE=$(sourcePath ${L} ${PROBLEM})
 
   isExist ${SOURCE}
   isExist ${INPUT}
@@ -226,10 +226,10 @@ makeEnv() {
     exit 1
   fi
 
-  readonly local PROBLEM=$1
-  readonly local DIR="src/LANG/${PROBLEM}"
-  readonly local INPUT="test/${PROBLEM}/input"
-  readonly local OUTPUT="test/${PROBLEM}/output"
+  declare -r PROBLEM=$1
+  declare -r DIR="src/LANG/${PROBLEM}"
+  declare -r INPUT="test/${PROBLEM}/input"
+  declare -r OUTPUT="test/${PROBLEM}/output"
 
   local i=0
   for l in "${LANG_[@]}"; do
@@ -250,10 +250,10 @@ lint() {
     exit 1
   fi
 
-  readonly local L=$1
-  readonly local PROBLEM=$2
+  declare -r L=$1
+  declare -r PROBLEM=$2
 
-  readonly local SOURCE=$(sourcePath ${L} ${PROBLEM})
+  declare -r SOURCE=$(sourcePath ${L} ${PROBLEM})
 
   isExist ${SOURCE}
   if [ ${L} == ${LANG_[0]} ]; then
@@ -275,9 +275,9 @@ copy() {
     exit 1
   fi
 
-  readonly local L=$1
-  readonly local PROBLEM=$2
-  readonly local SOURCE=$(sourcePath ${L} ${PROBLEM})
+  declare -r L=$1
+  declare -r PROBLEM=$2
+  declare -r SOURCE=$(sourcePath ${L} ${PROBLEM})
 
   isExist ${SOURCE}
   cat ${SOURCE} | pbcopy
