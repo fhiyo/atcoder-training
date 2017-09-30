@@ -258,8 +258,11 @@ lint() {
 
   isExist ${SOURCE}
   if [ ${L} == ${LANG_[0]} ]; then
+    # FIXME(f_hyodo): Use lint tool (sblint not running in my environment)
     # sblint: https://github.com/fukamachi/sblint
-    sblint ${SOURCE}
+    # sblint ${SOURCE}
+    echo "Under construction..."
+    :
   elif [ ${L} == ${LANG_[1]} ]; then
     hlint ${SOURCE}
   elif [ ${L} == ${LANG_[2]} ]; then
