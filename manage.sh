@@ -146,7 +146,11 @@ run() {
     # Use sbcl
     sbcl --script ${SOURCE}
   elif [ ${L} == ${LANG_[1]} ]; then
-    ghc ${SOURCE}
+    ghc ${SOURCE} > /dev/null
+    if [[ $? -ne 0 ]]; then
+      echo "ghc comlile is failed..." >&2
+      exit 1
+    fi
     ./${SOURCE/.hs/}
   elif [ ${L} == ${LANG_[2]} ]; then
     python3 ${SOURCE}
