@@ -1,0 +1,18 @@
+(defun solver(d_m)
+  (let ((d_km (/ d_m 1000))
+        (vv 0))
+    (setq d_km (float d_km))
+    (cond ((< d_km 0.1) (setq vv 0))
+          ((and (>= d_km 0.1) (<= d_km 5)) (setq vv (* d_km 10)))
+          ((and (>= d_km 6) (<= d_km 30)) (setq vv (+ d_km 50)))
+          ((and (>= d_km 35) (<= d_km 70)) (setq vv (+ 80 (/ (- d_km 30) 5))))
+          ((> d_km 70) (setq vv 89))
+          )
+    (setq vv (floor vv))
+    (format t "~2,'0D~%" vv)))
+
+(defun main()
+  (let ((d_m (read)))
+    (solver d_m)))
+
+(main)
