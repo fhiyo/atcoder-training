@@ -248,8 +248,6 @@ makeEnv() {
 }
 
 lint() {
-  # TODO(f_hyodo): Add lint tool for common lisp and python3.
-
   if [ $# != 2 ]; then
     echo "Usage: $0 <LANG> <problem_number>" 1>&2
     exit 1
