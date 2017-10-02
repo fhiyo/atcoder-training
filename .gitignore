@@ -1,3 +1,9 @@
+# Ignore no extension files.
+# refs: https://stackoverflow.com/questions/8865848/comments-in-gitignore
+*
+!*/
+!*.*
+
 **/*.o
 **/*.hi
 tmp
