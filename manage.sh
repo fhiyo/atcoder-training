@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Author: fhiyo
 
 set -u
@@ -32,10 +32,10 @@ usage() {
 
 containsElement () {
   # ref: https://stackoverflow.com/questions/3685970/check-if-a-bash-array-contains-a-value
-  local readonly e match="$1"
+  declare -r match="$1"
   shift
-  for e; do
-    [[ "$e" == "$match" ]] && return 0;
+  for e in "$@"; do
+    [[ "${e}" == "${match}" ]] && return 0;
   done
   return 1
 }
@@ -248,8 +248,6 @@ makeEnv() {
 }
 
 lint() {
-  # TODO(f_hyodo): Add lint tool for common lisp and python3.
-
   if [ $# != 2 ]; then
     echo "Usage: $0 <LANG> <problem_number>" 1>&2
     exit 1
