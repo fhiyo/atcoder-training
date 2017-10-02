@@ -32,10 +32,10 @@ usage() {
 
 containsElement () {
   # ref: https://stackoverflow.com/questions/3685970/check-if-a-bash-array-contains-a-value
-  local readonly e match="$1"
+  declare -r match="$1"
   shift
-  for e; do
-    [[ "$e" == "$match" ]] && return 0;
+  for e in "$@"; do
+    [[ "${e}" == "${match}" ]] && return 0;
   done
   return 1
 }
