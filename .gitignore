@@ -7,3 +7,4 @@
 **/*.o
 **/*.hi
 tmp
+.python-version
