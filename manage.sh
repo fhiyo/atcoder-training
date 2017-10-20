@@ -15,18 +15,19 @@ usage() {
     ${LANG_[2]}
 
   OPTIONS:
-    -c, --clean                           Remove files made when build
-    -e, --edit         [PROBLEM NUMBER]   Edit source file
-    -g, --git-add      [PROBLEM NUMBER]   Staging [PROBLEM NUMBER] to git
-    -h, --help                            Print usage (LANG not needed)
-    -l, --lint         [PROBLEM NUMBER]   Check haskell coding style (hlint using)
-    -m, --make-env     [PROBLEM NUMBER]   Create need directory and file (LANG not needed)
-    --copy             [PROBLEM NUMBER]   Copy problem code
-    -r, --run          [PROBLEM NUMBER]   Run haskell program (no input files)
-    -t, --test         [PROBLEM NUMBER]   Test the program is green or red
+    -c, --clean                                        Remove files made when build
+    -e, --edit         [PROBLEM NUMBER]                Edit source file
+    -g, --git-add      [PROBLEM NUMBER]                Staging [PROBLEM NUMBER] to git
+    -h, --help                                         Print usage (LANG not needed)
+    -l, --lint         [PROBLEM NUMBER]                Check haskell coding style (hlint using)
+    -m, --make-env     [PROBLEM NUMBER]                Create need directory and file (LANG not needed)
+    --copy             [PROBLEM NUMBER]                Copy problem code
+    -r, --run          [PROBLEM NUMBER]                Run haskell program (no input files)
+    -a, --all-test     [PROBLEM NUMBER]                Test the program is green or red
+    -t, --test         [PROBLEM NUMBER] [TEST NUMBER]  Only run particular test program (specified by [TEST NUMBER])
 
-    -i, --add-input    [PROBLEM NUMBER]   Add input text file
-    -o, --add-output   [PROBLEM NUMBER]   Add output text file
+    -i, --add-input    [PROBLEM NUMBER]                Add input text file
+    -o, --add-output   [PROBLEM NUMBER]                Add output text file
   "
 }
 
@@ -192,6 +193,46 @@ addToGit() {
 }
 
 test_() {
+  if [ $# != 3 ]; then
+    echo "Usage: $0 <LANG> <problem_number> <test_number>" 1>&2
+    exit 1
+  fi
+
+  declare -r L=$1
+  declare -r PROBLEM=$2
+  declare -r TEST_NUM=$3
+
+  declare -r INPUT="test/${PROBLEM}/input/${TEST_NUM}.txt"
+  declare -r OUTPUT="test/${PROBLEM}/output/${TEST_NUM}.txt"
+
+  declare -r SOURCE=$(sourcePath ${L} ${PROBLEM})
+
+  isExist ${SOURCE}
+  isExist ${INPUT}
+  isExist ${OUTPUT}
+
+  cat_command_str="===== cat ${INPUT} ====="
+  echo -e "\n${cat_command_str}"
+  cat ${INPUT}
+  # CAUTION: This is NOT work: "printf '%.s=' {1..${#cat_command_str}}"
+  # ref: https://unix.stackexchange.com/questions/7738/how-can-i-use-variable-in-a-shell-brace-expansion-of-a-sequence
+  printf '%.s=' $(seq 1 ${#cat_command_str})
+  echo -e "\n"
+  diff <(cat ${INPUT} | run ${L} ${PROBLEM}) <(cat ${OUTPUT})
+  if [ $? != 0 ]; then
+    echo -e "test case: $(basename ${INPUT})  --  Condition RED...\n" 1>&2
+  else
+    echo -e "test case: $(basename ${INPUT})  --  Condition GREEN.\n"
+  fi
+
+  if [[ -z $(ls ${INPUT}) ]]; then
+    echo -e "\nNot found the test file: ${INPUT}\n"
+  else
+    echo -e "\nTest end up.\n"
+  fi
+}
+
+allTest() {
   if [ $# != 2 ]; then
     echo "Usage: $0 <LANG> <problem_number>" 1>&2
     exit 1
@@ -393,14 +434,29 @@ for opt in "$@"; do
       run ${lang} ${prob_number}
       ;;
 
-    '-t' | '--test' )
+    '-a' | '--all-test' )
       if [[ -z "${2:-}" ]] || [[ "${2:-}" =~ ^-+ ]]; then
         echo "$0: option requires problem number as argument -- $1" 1>&2
         exit 1
       fi
       prob_number="$2"
       shift 2
-      test_ ${lang} ${prob_number}
+      allTest ${lang} ${prob_number}
+      ;;
+
+    '-t' | '--test' )
+      if [[ -z "${2:-}" ]] || [[ "${2:-}" =~ ^-+ ]]; then
+        echo "$0: option requires problem number as argument -- $1" 1>&2
+        exit 1
+      fi
+      if [[ -z "${3:-}" ]] || [[ "${3:-}" =~ ^-+ ]]; then
+        echo "$0: option requires test number as argument -- $1" 1>&2
+        exit 1
+      fi
+      prob_number="$2"
+      test_number="$3"
+      shift 3
+      test_ ${lang} ${prob_number} ${test_number}
       ;;
 
     '-i' | '--add-input' )
