@@ -89,7 +89,7 @@ generate-new-test-number() {
   fi
 }
 
-add-input() {
+addInput() {
   if [ $# != 1 ]; then
     echo "Usage: $0 <problem_number>" 1>&2
     exit 1
@@ -103,7 +103,7 @@ add-input() {
   vim ${INPUT}/${new_test_num}.txt
 }
 
-add-output() {
+addOutput() {
   if [ $# != 1 ]; then
     echo "Usage: $0 <problem_number>" 1>&2
     exit 1
@@ -160,7 +160,7 @@ run() {
   fi
 }
 
-add_to_git() {
+addToGit() {
   if [ $# != 2 ]; then
     echo "Usage: $0 <LANG> <problem_number>" 1>&2
     exit 1
@@ -315,7 +315,6 @@ fi
 # WARN: Work only not exists symbolic link!
 cd ${SOURCE_DIR}
 
-
 containsElement "$1" "${LANG_[@]}"
 if [[ $? -eq 0 ]]; then
   readonly lang="$1"
@@ -346,7 +345,7 @@ for opt in "$@"; do
       fi
       prob_number="$2"
       shift 2
-      add_to_git ${lang} ${prob_number}
+      addToGit ${lang} ${prob_number}
       ;;
 
     '-h' | '--help' )
@@ -411,7 +410,7 @@ for opt in "$@"; do
       fi
       prob_number="$2"
       shift 2
-      add-input ${prob_number}
+      addInput ${prob_number}
       ;;
 
      '-o' | '--add-output' )
@@ -421,7 +420,7 @@ for opt in "$@"; do
       fi
       prob_number="$2"
       shift 2
-      add-output ${prob_number}
+      addOutput ${prob_number}
       ;;
   esac
 done
