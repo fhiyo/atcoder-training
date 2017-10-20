@@ -15,18 +15,18 @@ usage() {
     ${LANG_[2]}
 
   OPTIONS:
-    -c, --clean                       Remove files made when build
-    -e, --edit     [PROBLEM NUMBER]   Edit source file
-    -g, --git-add  [PROBLEM NUMBER]   Staging [PROBLEM NUMBER] to git
-    -h, --help                        Print usage (LANG not needed)
-    -l, --lint     [PROBLEM NUMBER]   Check haskell coding style (hlint using)
-    -m, --make-env [PROBLEM NUMBER]   Create need directory and file (LANG not needed)
-    -o, --copy     [PROBLEM NUMBER]   Copy problem code
-    -r, --run      [PROBLEM NUMBER]   Run haskell program (no input files)
-    -t, --test     [PROBLEM NUMBER]   Test the program is green or red
+    -c, --clean                           Remove files made when build
+    -e, --edit         [PROBLEM NUMBER]   Edit source file
+    -g, --git-add      [PROBLEM NUMBER]   Staging [PROBLEM NUMBER] to git
+    -h, --help                            Print usage (LANG not needed)
+    -l, --lint         [PROBLEM NUMBER]   Check haskell coding style (hlint using)
+    -m, --make-env     [PROBLEM NUMBER]   Create need directory and file (LANG not needed)
+    --copy             [PROBLEM NUMBER]   Copy problem code
+    -r, --run          [PROBLEM NUMBER]   Run haskell program (no input files)
+    -t, --test         [PROBLEM NUMBER]   Test the program is green or red
 
-    --add-input    [PROBLEM NUMBER]   Add input text file
-    --add-output   [PROBLEM NUMBER]   Add output text file
+    -i, --add-input    [PROBLEM NUMBER]   Add input text file
+    -o, --add-output   [PROBLEM NUMBER]   Add output text file
   "
 }
 
@@ -374,7 +374,7 @@ for opt in "$@"; do
       makeEnv ${prob_number}
       ;;
 
-     '-o' | '--copy' )
+     '--copy' )
       if [[ -z "${2:-}" ]] || [[ "${2:-}" =~ ^-+ ]]; then
         echo "$0: option requires problem number as argument -- $1" 1>&2
         exit 1
@@ -404,7 +404,7 @@ for opt in "$@"; do
       test_ ${lang} ${prob_number}
       ;;
 
-    '--add-input' )
+    '-i' | '--add-input' )
       if [[ -z "${2:-}" ]] || [[ "${2:-}" =~ ^-+ ]]; then
         echo "$0: option requires problem number as argument -- $1" 1>&2
         exit 1
@@ -414,7 +414,7 @@ for opt in "$@"; do
       add-input ${prob_number}
       ;;
 
-     '--add-output' )
+     '-o' | '--add-output' )
       if [[ -z "${2:-}" ]] || [[ "${2:-}" =~ ^-+ ]]; then
         echo "$0: option requires problem number as argument -- $1" 1>&2
         exit 1
