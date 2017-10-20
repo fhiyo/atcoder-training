@@ -17,3 +17,4 @@ AtCoderの好きな言語で解くための環境．
 - `./manage.sh <LANG> --lint <問題番号>`でlintツールを使ったコーディングチェックをする (工事中)
 - `./manage.sh --clean`でビルド時に生成したファイルを削除
 - `./manage.sh <LANG> --copy <問題番号>`で書いたコードをクリップボードにコピー (Macのみ．pbcopyを使用)
+- 使い方は`./manage.sh -h`で参照
