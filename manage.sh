@@ -305,7 +305,7 @@ lint() {
   declare -r SOURCE=$(sourcePath ${L} ${PROBLEM})
 
   isExist ${SOURCE}
-  if [ ${L} == ${LANG_[0]} ]; then
+  if [ ${L} == ${LANGS[0]} ]; then
     # FIXME(fhiyo): Use lint tool (sblint not running in my environment)
     # sblint: https://github.com/fukamachi/sblint
     # sblint ${SOURCE}
