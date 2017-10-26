@@ -133,7 +133,6 @@ edit() {
   declare -r SOURCE=$(sourcePath ${L} ${PROBLEM})
   declare -r DIR=$(dirname ${SOURCE})
 
-  isExist ${DIR}
   vim ${SOURCE}
 }
 
