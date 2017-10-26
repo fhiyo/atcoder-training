@@ -292,7 +292,6 @@ makeEnv() {
   for l in "${LANGS[@]}"; do
     d=${DIR/LANG/${l}}
     mkdir -p ${d}
-    touch ${d}/${PROBLEM}${LANG_EXT[i]}
     (( i++ ))
   done
 
