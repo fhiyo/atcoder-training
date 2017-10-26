@@ -59,8 +59,8 @@ sourcePath() {
   declare -r PROBLEM=$2
 
   local iter=0
-  for lang in "${LANGS[@]}"; do
-    if [ ${L} == ${lang} ]; then
+  for lang_ in "${LANGS[@]}"; do
+    if [ ${L} == ${lang_} ]; then
       declare -r SOURCE="src/${L}/${PROBLEM}/${PROBLEM}${LANG_EXT[${iter}]}"
       break
     fi
