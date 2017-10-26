@@ -160,6 +160,13 @@ run() {
     ./${SOURCE/.hs/}
   elif [ ${L} == ${LANGS[2]} ]; then
     python3 ${SOURCE}
+  elif [ ${L} == ${LANGS[3]} ]; then
+    g++ -std=gnu++1y -O2 -I/usr/local/Cellar/boost/1.65.1/include -L/usr/local/Cellar/boost/1.65.1/lib -o $(dirname ${SOURCE})/a.out ${SOURCE}
+    if [[ $? -ne 0 ]]; then
+      echo "g++ comlile is failed..." >&2
+      exit 1
+    fi
+    $(dirname ${SOURCE})/a.out
   else
     echo "LANG must be one of the following: ${LANGS}" 1>&2
     exit 1
@@ -315,6 +322,8 @@ lint() {
     hlint ${SOURCE}
   elif [ ${L} == ${LANGS[2]} ]; then
     flake8 ${SOURCE}
+  elif [ ${L} == ${LANGS[3]} ]; then
+    cpplint ${SOURCE}
   else
     echo "LANG must be one of the following: ${LANGS}" 1>&2
     exit 1
@@ -337,13 +346,14 @@ copy() {
 }
 
 clean() {
-  source_dirs=$(find ./src/{clisp,haskell,py3} -mindepth 1 -maxdepth 1 -type d)
+  source_dirs=$(find ./src/{clisp,haskell,py3,cpp14} -mindepth 1 -maxdepth 1 -type d)
   for program_dir in ${source_dirs}; do
     program=$(basename ${program_dir})
     pushd ${program_dir} >/dev/null
     \rm ${program} ${program}.hi ${program}.o 2>/dev/null
     \rm -rf __pycache__ ${program}.pyc 2>/dev/null
     \rm ${program}.lib ${program}.fas 2>/dev/null
+    \rm a.out 2>/dev/null
     popd > /dev/null
   done
 }
