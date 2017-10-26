@@ -6,5 +6,7 @@
 
 **/*.o
 **/*.hi
+**/a.out
+archive
 tmp
 .python-version
