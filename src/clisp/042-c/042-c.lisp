@@ -4,7 +4,6 @@
     :for end = (and beg (position-if delimiterp string :start beg))
     :when beg :collect (subseq string beg end)
     :while end))
-
 (defun delimiterp (c) (position c " ,.;/"))
 
 (defun solve (dislike_digits_table first_like_digit N_str)
