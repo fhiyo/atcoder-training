@@ -3,16 +3,17 @@
 
 set -u
 
-readonly LANG_=(clisp haskell py3)
-readonly LANG_EXT=(.lisp .hs .py)
+readonly LANGS=(clisp haskell py3 cpp14)
+readonly LANG_EXT=(.lisp .hs .py .cpp)
 
 usage() {
   echo "Usage: $0 [LANG] OPTIONS [PROBLEM NUMBER]
 
   LANG:
-    ${LANG_[0]}
-    ${LANG_[1]}
-    ${LANG_[2]}
+    ${LANGS[0]}
+    ${LANGS[1]}
+    ${LANGS[2]}
+    ${LANGS[3]}
 
   OPTIONS:
     -c, --clean                                        Remove files made when build
@@ -57,14 +58,17 @@ sourcePath() {
   declare -r L=$1
   declare -r PROBLEM=$2
 
-  if [ ${L} == ${LANG_[0]} ]; then
-    declare -r SOURCE="src/${L}/${PROBLEM}/${PROBLEM}${LANG_EXT[0]}"
-  elif [ ${L} == ${LANG_[1]} ]; then
-    declare -r SOURCE="src/${L}/${PROBLEM}/${PROBLEM}${LANG_EXT[1]}"
-  elif [ ${L} == ${LANG_[2]} ]; then
-    declare -r SOURCE="src/${L}/${PROBLEM}/${PROBLEM}${LANG_EXT[2]}"
-  else
-    echo "LANG must be one of the following: ${LANG_}" 1>&2
+  local iter=0
+  for lang_ in "${LANGS[@]}"; do
+    if [ ${L} == ${lang_} ]; then
+      declare -r SOURCE="src/${L}/${PROBLEM}/${PROBLEM}${LANG_EXT[${iter}]}"
+      break
+    fi
+    (( iter++ ))
+  done
+
+  if [ ${iter} -ge ${#LANGS[@]} ]; then
+    echo "LANG must be one of the following: \"${LANGS[@]}\"" 1>&2
     exit 1
   fi
 
@@ -127,8 +131,8 @@ edit() {
   declare -r L=$1
   declare -r PROBLEM=$2
   declare -r SOURCE=$(sourcePath ${L} ${PROBLEM})
+  declare -r DIR=$(dirname ${SOURCE})
 
-  isExist ${SOURCE}
   vim ${SOURCE}
 }
 
@@ -143,20 +147,27 @@ run() {
 
   declare -r SOURCE=$(sourcePath ${L} ${PROBLEM})
 
-  if [ ${L} == ${LANG_[0]} ]; then
+  if [ ${L} == ${LANGS[0]} ]; then
     # Use sbcl
     sbcl --script ${SOURCE}
-  elif [ ${L} == ${LANG_[1]} ]; then
+  elif [ ${L} == ${LANGS[1]} ]; then
     ghc ${SOURCE} > /dev/null
     if [[ $? -ne 0 ]]; then
       echo "ghc comlile is failed..." >&2
       exit 1
     fi
     ./${SOURCE/.hs/}
-  elif [ ${L} == ${LANG_[2]} ]; then
+  elif [ ${L} == ${LANGS[2]} ]; then
     python3 ${SOURCE}
+  elif [ ${L} == ${LANGS[3]} ]; then
+    g++ -std=gnu++1y -O2 -I/usr/local/Cellar/boost/1.65.1/include -L/usr/local/Cellar/boost/1.65.1/lib -o $(dirname ${SOURCE})/a.out ${SOURCE}
+    if [[ $? -ne 0 ]]; then
+      echo "g++ comlile is failed..." >&2
+      exit 1
+    fi
+    $(dirname ${SOURCE})/a.out
   else
-    echo "LANG must be one of the following: ${LANG_}" 1>&2
+    echo "LANG must be one of the following: ${LANGS}" 1>&2
     exit 1
   fi
 }
@@ -278,10 +289,9 @@ makeEnv() {
   declare -r OUTPUT="test/${PROBLEM}/output"
 
   local i=0
-  for l in "${LANG_[@]}"; do
+  for l in "${LANGS[@]}"; do
     d=${DIR/LANG/${l}}
     mkdir -p ${d}
-    touch ${d}/${PROBLEM}${LANG_EXT[i]}
     (( i++ ))
   done
 
@@ -300,18 +310,20 @@ lint() {
   declare -r SOURCE=$(sourcePath ${L} ${PROBLEM})
 
   isExist ${SOURCE}
-  if [ ${L} == ${LANG_[0]} ]; then
+  if [ ${L} == ${LANGS[0]} ]; then
     # FIXME(fhiyo): Use lint tool (sblint not running in my environment)
     # sblint: https://github.com/fukamachi/sblint
     # sblint ${SOURCE}
     echo "Under construction..."
     :
-  elif [ ${L} == ${LANG_[1]} ]; then
+  elif [ ${L} == ${LANGS[1]} ]; then
     hlint ${SOURCE}
-  elif [ ${L} == ${LANG_[2]} ]; then
+  elif [ ${L} == ${LANGS[2]} ]; then
     flake8 ${SOURCE}
+  elif [ ${L} == ${LANGS[3]} ]; then
+    cpplint ${SOURCE}
   else
-    echo "LANG must be one of the following: ${LANG_}" 1>&2
+    echo "LANG must be one of the following: ${LANGS}" 1>&2
     exit 1
   fi
 
@@ -332,13 +344,14 @@ copy() {
 }
 
 clean() {
-  source_dirs=$(find ./src/{clisp,haskell,py3} -mindepth 1 -maxdepth 1 -type d)
+  source_dirs=$(find ./src/{clisp,haskell,py3,cpp14} -mindepth 1 -maxdepth 1 -type d)
   for program_dir in ${source_dirs}; do
     program=$(basename ${program_dir})
     pushd ${program_dir} >/dev/null
     \rm ${program} ${program}.hi ${program}.o 2>/dev/null
     \rm -rf __pycache__ ${program}.pyc 2>/dev/null
     \rm ${program}.lib ${program}.fas 2>/dev/null
+    \rm a.out 2>/dev/null
     popd > /dev/null
   done
 }
@@ -356,7 +369,7 @@ fi
 # WARN: Work only not exists symbolic link!
 cd ${SOURCE_DIR}
 
-containsElement "$1" "${LANG_[@]}"
+containsElement "$1" "${LANGS[@]}"
 if [[ $? -eq 0 ]]; then
   readonly lang="$1"
   shift
