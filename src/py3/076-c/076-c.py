@@ -51,18 +51,19 @@ def main():
         print('UNRESTORABLE')
         sys.exit(0)
 
-    total = pos
+    S_cand = S_p[:pos] + T + S_p[pos+len(T):]
+    S_cand = S_cand.replace('?', 'a')
 
     pos_ = 0
     while pos_ >= 0:
         pos_ = kmp(S_p[pos+1:], T)
         if pos_ >= 0:
             pos = pos + pos_ + 1
+            S_cand2 = S_p[:pos] + T + S_p[pos+len(T):]
+            S_cand2 = S_cand2.replace('?', 'a')
+            S_cand = S_cand if S_cand < S_cand2 else S_cand2
 
-    S_cand = S_p[:pos] + T + S_p[pos+len(T):]
-
-    S = S_cand.replace('?', 'a')
-    print(S)
+    print(S_cand)
 
 if __name__ == '__main__':
     sys.exit(main())
