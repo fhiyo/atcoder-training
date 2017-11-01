@@ -1,0 +1,11 @@
+(defun main ()
+  (let ((a (read)) (b (read)) (c (read)) (d (read)) (e (read)) (f (read))
+                   (v1_x nil) (v1_y nil) (v2_x nil) (v2_y nil))
+    (setq v1_x (- c a))
+    (setq v1_y (- d b))
+    (setq v2_x (- e a))
+    (setq v2_y (- f b))
+
+    (format t "~,3f~%" (abs (/ (- (* v1_x v2_y) (* v1_y v2_x)) 2)))
+    ))
+(main)
