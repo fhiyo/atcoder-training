@@ -15,8 +15,8 @@ AtCoderの好きな言語で解くための環境．
 
 ## サイクル
 1. 解きたいAtCoderの問題を決める
-- `./manage.sh --make-env <問題番号>`
-- test/<問題番号>/{input,output}/ の下に同じファイル名で入力と出力のファイルを用意する (test用の入力/出力値) (複数テストケースを置ける)
+- `./manage.sh -m <問題番号> <問題のURL>`
+- `test/<問題番号>/{input,output}/` の下に同じファイル名で入力と出力のファイルを用意する (test用の入力/出力値) (複数テストケースを置ける)
 - `./manage.sh <LANG> -e <問題番号>`でソースコードを書く
 - `./manage.sh <LANG> --test <問題番号>`でテスト
 - テストをPassしたらコードをAtCoderに提出する
