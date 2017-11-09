@@ -3,6 +3,14 @@
 AtCoderの好きな言語で解くための環境．  
 [aoj_haskell_training](https://github.com/fhiyo/aoj_haskell_training)の流用．
 
+## 準備
+
+1. 各環境でPython3をインストールする
+1. 各環境で`virtualenv`をインストールする
+1. `cd /path/to/repo && git clone git@github.com:fhiyo/atcoder-training.git && cd atcoder-training`
+1. `virtualenv util/python/.venv -p <各環境でのpython3の実行ファイルの名前>`でvirtualenv環境を構築する
+1. `util/python/.venv/bin/pip install -r util/python/requirements.txt`で依存ライブラリをインストールする
+
 ## 構成
 
 ## サイクル

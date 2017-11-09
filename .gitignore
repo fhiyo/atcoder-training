@@ -10,3 +10,4 @@
 archive
 tmp
 .python-version
+util/python/.venv

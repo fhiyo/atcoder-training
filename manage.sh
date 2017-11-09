@@ -6,6 +6,9 @@ set -u
 readonly LANGS=(clisp haskell py3 cpp14)
 readonly LANG_EXT=(.lisp .hs .py .cpp)
 
+readonly PYPATH=util/python
+readonly VENV_BIN=.venv/bin
+
 usage() {
   echo "Usage: $0 [LANG] OPTIONS [PROBLEM NUMBER]
 
@@ -158,7 +161,7 @@ run() {
     fi
     ./${SOURCE/.hs/}
   elif [ ${L} == ${LANGS[2]} ]; then
-    python3 ${SOURCE}
+    ${PYPATH}/${VENV_BIN}/python ${SOURCE}
   elif [ ${L} == ${LANGS[3]} ]; then
     g++ -std=gnu++1y -O2 -I/usr/local/Cellar/boost/1.65.1/include -L/usr/local/Cellar/boost/1.65.1/lib -o $(dirname ${SOURCE})/a.out ${SOURCE}
     if [[ $? -ne 0 ]]; then
@@ -319,7 +322,7 @@ lint() {
   elif [ ${L} == ${LANGS[1]} ]; then
     hlint ${SOURCE}
   elif [ ${L} == ${LANGS[2]} ]; then
-    flake8 ${SOURCE}
+    ${PYPATH}/${VENV_BIN}/flake8 ${SOURCE}
   elif [ ${L} == ${LANGS[3]} ]; then
     cpplint ${SOURCE}
   else
