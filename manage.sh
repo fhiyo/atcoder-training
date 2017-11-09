@@ -6,6 +6,9 @@ set -u
 readonly LANGS=(clisp haskell py3 cpp14)
 readonly LANG_EXT=(.lisp .hs .py .cpp)
 
+readonly PYPATH=util/python
+readonly VENV_BIN=.venv/bin
+
 usage() {
   echo "Usage: $0 [LANG] OPTIONS [PROBLEM NUMBER]
 
@@ -21,7 +24,7 @@ usage() {
     -g, --git-add      [PROBLEM NUMBER]                Staging [PROBLEM NUMBER] to git
     -h, --help                                         Print usage (LANG not needed)
     -l, --lint         [PROBLEM NUMBER]                Check haskell coding style (hlint using)
-    -m, --make-env     [PROBLEM NUMBER]                Create need directory and file (LANG not needed)
+    -m, --make-env     [PROBLEM NUMBER] [url]          Create need directory and file (LANG not needed)
     --copy             [PROBLEM NUMBER]                Copy problem code
     -r, --run          [PROBLEM NUMBER]                Run haskell program (no input files)
     -a, --all-test     [PROBLEM NUMBER]                Test the program is green or red
@@ -158,7 +161,7 @@ run() {
     fi
     ./${SOURCE/.hs/}
   elif [ ${L} == ${LANGS[2]} ]; then
-    python3 ${SOURCE}
+    ${PYPATH}/${VENV_BIN}/python ${SOURCE}
   elif [ ${L} == ${LANGS[3]} ]; then
     g++ -std=gnu++1y -O2 -I/usr/local/Cellar/boost/1.65.1/include -L/usr/local/Cellar/boost/1.65.1/lib -o $(dirname ${SOURCE})/a.out ${SOURCE}
     if [[ $? -ne 0 ]]; then
@@ -225,7 +228,7 @@ test_() {
   cat_command_str="===== cat ${INPUT} ====="
   echo -e "\n${cat_command_str}"
   cat ${INPUT}
-  # CAUTION: This is NOT work: "printf '%.s=' {1..${#cat_command_str}}"
+  # XXX: This is NOT work: "printf '%.s=' {1..${#cat_command_str}}"
   # ref: https://unix.stackexchange.com/questions/7738/how-can-i-use-variable-in-a-shell-brace-expansion-of-a-sequence
   printf '%.s=' $(seq 1 ${#cat_command_str})
   echo -e "\n"
@@ -278,12 +281,13 @@ allTest() {
 }
 
 makeEnv() {
-  if [ $# != 1 ]; then
-    echo "Usage: $0 <problem_number>" 1>&2
+  if [ $# != 2 ]; then
+    echo "Usage: $0 <problem_number> <url>" 1>&2
     exit 1
   fi
 
   declare -r PROBLEM=$1
+  declare -r URL=$2
   declare -r DIR="src/LANG/${PROBLEM}"
   declare -r INPUT="test/${PROBLEM}/input"
   declare -r OUTPUT="test/${PROBLEM}/output"
@@ -296,6 +300,8 @@ makeEnv() {
   done
 
   mkdir -p ${INPUT} ${OUTPUT}
+
+  ${PYPATH}/${VENV_BIN}/python ${PYPATH}/storeInputOutput.py ${URL} ${PROBLEM}
 }
 
 lint() {
@@ -319,14 +325,13 @@ lint() {
   elif [ ${L} == ${LANGS[1]} ]; then
     hlint ${SOURCE}
   elif [ ${L} == ${LANGS[2]} ]; then
-    flake8 ${SOURCE}
+    ${PYPATH}/${VENV_BIN}/flake8 ${SOURCE}
   elif [ ${L} == ${LANGS[3]} ]; then
     cpplint ${SOURCE}
   else
     echo "LANG must be one of the following: ${LANGS}" 1>&2
     exit 1
   fi
-
 }
 
 copy() {
@@ -418,13 +423,14 @@ for opt in "$@"; do
       ;;
 
     '-m' | '--make-env' )
-      if [[ -z "${2:-}" ]] || [[ "${2:-}" =~ ^-+ ]]; then
-        echo "$0: option requires problem number as argument -- $1" 1>&2
+      if [[ -z "${3:-}" ]] || [[ "${3:-}" =~ ^-+ ]]; then
+        echo "$0: option requires problem number and url as argument -- $1" 1>&2
         exit 1
       fi
       prob_number="$2"
+      url="$3"
       shift 2
-      makeEnv ${prob_number}
+      makeEnv ${prob_number} ${url}
       ;;
 
      '--copy' )
