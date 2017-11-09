@@ -228,7 +228,7 @@ test_() {
   cat_command_str="===== cat ${INPUT} ====="
   echo -e "\n${cat_command_str}"
   cat ${INPUT}
-  # CAUTION: This is NOT work: "printf '%.s=' {1..${#cat_command_str}}"
+  # XXX: This is NOT work: "printf '%.s=' {1..${#cat_command_str}}"
   # ref: https://unix.stackexchange.com/questions/7738/how-can-i-use-variable-in-a-shell-brace-expansion-of-a-sequence
   printf '%.s=' $(seq 1 ${#cat_command_str})
   echo -e "\n"
@@ -332,7 +332,6 @@ lint() {
     echo "LANG must be one of the following: ${LANGS}" 1>&2
     exit 1
   fi
-
 }
 
 copy() {
