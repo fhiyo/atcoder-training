@@ -35,11 +35,11 @@ def main(args):
                if re.search('Sample Output (\d+)', part.h3.get_text())]
 
     for i, text in enumerate(inputs):
-        with open(os.path.join(input_loc, '{}.txt'.format(i)), 'w') as f:
-            f.write(text)
+        with open(os.path.join(input_loc, '{}.txt'.format(i + 1)), 'w') as f:
+            f.write(text.replace('\r\n', '\n')) if os.name == 'posix' else f.write(text)
     for i, text in enumerate(outputs):
-        with open(os.path.join(output_loc, '{}.txt'.format(i)), 'w') as f:
-            f.write(text)
+        with open(os.path.join(output_loc, '{}.txt'.format(i + 1)), 'w') as f:
+            f.write(text.replace('\r\n', '\n')) if os.name == 'posix' else f.write(text)
 
 
 if __name__ == '__main__':
