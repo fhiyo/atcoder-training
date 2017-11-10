@@ -154,7 +154,7 @@ run() {
     # Use sbcl
     sbcl --script ${SOURCE}
   elif [ ${L} == ${LANGS[1]} ]; then
-    ghc ${SOURCE} > /dev/null
+    stack ghc ${SOURCE} > /dev/null
     if [[ $? -ne 0 ]]; then
       echo "ghc comlile is failed..." >&2
       exit 1
