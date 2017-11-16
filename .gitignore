@@ -12,6 +12,7 @@ tmp
 .python-version
 util/python/.venv
 __pycache__
+**/*.pyc
 
 util/settings/*
 !util/settings/.gitkeep

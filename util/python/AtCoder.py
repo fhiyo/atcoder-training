@@ -21,8 +21,9 @@ from Config import *
 from logging import basicConfig
 from logging import getLogger
 from logging import DEBUG
+from logging import CRITICAL
 
-basicConfig(level=DEBUG)
+basicConfig(level=CRITICAL)
 logger = getLogger(__name__)
 
 FAILED_MSG = "You failed to sign in"
@@ -94,10 +95,10 @@ def login(session,
             msg = json.loads(urllib.parse.unquote_plus(cookie.value))
             logger.debug('msg: %s' % str(msg))
             if FAILED_MSG in msg['h']:
-                print(FAILED_MSG)
+                logger.warning(FAILED_MSG)
                 sys.exit(1)
             if SUCCESS_MSG in msg['c']:
-                print(SUCCESS_MSG)
+                logger.info(SUCCESS_MSG)
 
 
 def downloadSamples(url,
