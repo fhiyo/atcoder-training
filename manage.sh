@@ -24,7 +24,7 @@ usage() {
     -g, --git-add      [PROBLEM NUMBER]                Staging [PROBLEM NUMBER] to git
     -h, --help                                         Print usage (LANG not needed)
     -l, --lint         [PROBLEM NUMBER]                Check haskell coding style (hlint using)
-    -m, --make-env     [PROBLEM NUMBER] [url]          Create need directory and file (LANG not needed)
+    -m, --make-env     [url]                           Create need directory and file (LANG not needed)
     --copy             [PROBLEM NUMBER]                Copy problem code
     -r, --run          [PROBLEM NUMBER]                Run haskell program (no input files)
     -a, --all-test     [PROBLEM NUMBER]                Test the program is green or red
@@ -281,27 +281,29 @@ allTest() {
 }
 
 makeEnv() {
-  if [ $# != 2 ]; then
-    echo "Usage: $0 <problem_number> <url>" 1>&2
+  if [ $# != 1 ]; then
+    echo "Usage: $0 <url>" 1>&2
     exit 1
   fi
 
-  declare -r PROBLEM=$1
-  declare -r URL=$2
-  declare -r DIR="src/LANG/${PROBLEM}"
-  declare -r INPUT="test/${PROBLEM}/input"
-  declare -r OUTPUT="test/${PROBLEM}/output"
+  declare -r URL=$1
+  # declare -r PROBLEM=$1
+  # declare -r URL=$2
+  # declare -r DIR="src/LANG/${PROBLEM}"
+  # declare -r INPUT="test/${PROBLEM}/input"
+  # declare -r OUTPUT="test/${PROBLEM}/output"
 
-  local i=0
-  for l in "${LANGS[@]}"; do
-    d=${DIR/LANG/${l}}
-    mkdir -p ${d}
-    (( i++ ))
-  done
+  # local i=0
+  # for l in "${LANGS[@]}"; do
+  #   d=${DIR/LANG/${l}}
+  #   mkdir -p ${d}
+  #   (( i++ ))
+  # done
+  #
+  # mkdir -p ${INPUT} ${OUTPUT}
 
-  mkdir -p ${INPUT} ${OUTPUT}
-
-  ${PYPATH}/${VENV_BIN}/python ${PYPATH}/storeInputOutput.py ${URL} ${PROBLEM}
+  ${PYPATH}/${VENV_BIN}/python ${PYPATH}/AtCoder.py ${URL} "${LANGS[@]}"
+  # ${PYPATH}/${VENV_BIN}/python ${PYPATH}/storeInputOutput.py ${URL} ${PROBLEM}
 }
 
 lint() {
@@ -423,14 +425,15 @@ for opt in "$@"; do
       ;;
 
     '-m' | '--make-env' )
-      if [[ -z "${3:-}" ]] || [[ "${3:-}" =~ ^-+ ]]; then
+      if [[ -z "${2:-}" ]] || [[ "${2:-}" =~ ^-+ ]]; then
         echo "$0: option requires problem number and url as argument -- $1" 1>&2
         exit 1
       fi
-      prob_number="$2"
-      url="$3"
+      # prob_number="$2"
+      url="$2"
       shift 2
-      makeEnv ${prob_number} ${url}
+      makeEnv ${url}
+      # makeEnv ${prob_number} ${url}
       ;;
 
      '--copy' )
