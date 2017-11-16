@@ -11,3 +11,7 @@ archive
 tmp
 .python-version
 util/python/.venv
+__pycache__
+
+util/settings/*
+!util/settings/.gitkeep
