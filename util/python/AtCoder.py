@@ -16,11 +16,10 @@ from pathlib import Path
 import requests
 import urllib.parse
 
-from Config import *
+from Config import (ATCODER_PATH, KEY_PATH, NAME_PATH, PASS_PATH, SRC_PATH, TEST_PATH)
 
 from logging import basicConfig
 from logging import getLogger
-from logging import DEBUG
 from logging import CRITICAL
 
 basicConfig(level=CRITICAL)
@@ -28,7 +27,7 @@ logger = getLogger(__name__)
 
 FAILED_MSG = "You failed to sign in"
 SUCCESS_MSG = "You signed in."
-LOGIN_URL='https://practice.contest.atcoder.jp/login'
+LOGIN_URL = 'https://practice.contest.atcoder.jp/login'
 
 
 def generateKey(key_path=KEY_PATH, update=False):

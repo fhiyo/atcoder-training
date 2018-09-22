@@ -163,7 +163,7 @@ run() {
   elif [ ${L} == ${LANGS[2]} ]; then
     ${PYPATH}/${VENV_BIN}/python ${SOURCE}
   elif [ ${L} == ${LANGS[3]} ]; then
-    g++ -std=gnu++1y -O2 -I/usr/local/Cellar/boost/1.65.1/include -L/usr/local/Cellar/boost/1.65.1/lib -o $(dirname ${SOURCE})/a.out ${SOURCE}
+    g++ -std=gnu++1y -O2 -I/usr/local/Cellar/boost/1.67.0_1/include -L/usr/local/Cellar/boost/1.67.0_1/lib -o $(dirname ${SOURCE})/a.out ${SOURCE}
     if [[ $? -ne 0 ]]; then
       echo "g++ comlile is failed..." >&2
       exit 1
