@@ -163,8 +163,10 @@ run() {
   elif [ ${L} == ${LANGS[2]} ]; then
     ${PYPATH}/${VENV_BIN}/python ${SOURCE}
   elif [ ${L} == ${LANGS[3]} ]; then
-    g++ -std=gnu++1y -O2 -I/usr/local/Cellar/boost/1.67.0_1/include -L/usr/local/Cellar/boost/1.67.0_1/lib -o $(dirname ${SOURCE})/a.out ${SOURCE}
-    if [[ $? -ne 0 ]]; then
+    # /var/folders/で始まるwarning: http://kazune-lab.net/diary/2017/07/24/alias/
+    g++-5 -std=gnu++1y -O2 -o $(dirname ${SOURCE})/a.out ${SOURCE} 2>&1 | grep -v -e '^/var/folders/*' -e '^[[:space:]]*\.section' -e '^[[:space:]]*\^[[:space:]]*~*'
+    # XXX: grepの仕様で、matchしない場合のexit statusが1になるのでそこを吸収する
+    if [[ $? -ne 0 && $? -ne 1 ]]; then
       echo "g++ comlile is failed..." >&2
       exit 1
     fi

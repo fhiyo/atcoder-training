@@ -16,3 +16,5 @@ __pycache__
 
 util/settings/*
 !util/settings/.gitkeep
+*.code-workspace
+
