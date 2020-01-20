@@ -27,7 +27,7 @@ logger = getLogger(__name__)
 
 FAILED_MSG = "You failed to sign in"
 SUCCESS_MSG = "You signed in."
-LOGIN_URL = 'https://practice.contest.atcoder.jp/login'
+LOGIN_URL = 'https://{}.contest.atcoder.jp/login'
 
 
 def generateKey(key_path=KEY_PATH, update=False):
@@ -69,6 +69,7 @@ def generateUserInfo(key_path=KEY_PATH,
 
 
 def login(session,
+          problem_id,
           key_path=KEY_PATH,
           name_path=NAME_PATH,
           pass_path=PASS_PATH):
@@ -86,18 +87,19 @@ def login(session,
         decrypted_pass = fernet.decrypt(f.read())
 
     data = {'name': name, 'password': decrypted_pass}
+    login_url = LOGIN_URL.format(problem_id[:-2])
 
     logger.debug('A session generated.')
-    resp = session.request('POST', LOGIN_URL, data=data, allow_redirects=False)
+    resp = session.request('POST', login_url, data=data, allow_redirects=False)
     for cookie in resp.cookies:
         if cookie.name.startswith('__message_'):
             msg = json.loads(urllib.parse.unquote_plus(cookie.value))
             logger.debug('msg: %s' % str(msg))
             if FAILED_MSG in msg['h']:
-                logger.warning(FAILED_MSG)
+                print(FAILED_MSG)
                 sys.exit(1)
             if SUCCESS_MSG in msg['c']:
-                logger.info(SUCCESS_MSG)
+                print(SUCCESS_MSG)
 
 
 def downloadSamples(url,
@@ -107,7 +109,7 @@ def downloadSamples(url,
     """Download sample input and output."""
     problem_id = problemIdFromUrl(url)
 
-    login(session)
+    login(session, problem_id)
 
     resp = session.request('GET', url)
     soup = BeautifulSoup(resp.text, 'html.parser')
