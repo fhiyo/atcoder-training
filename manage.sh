@@ -3,8 +3,8 @@
 
 set -u
 
-readonly LANGS=(clisp haskell py3 cpp14)
-readonly LANG_EXT=(.lisp .hs .py .cpp)
+readonly LANGS=(clisp haskell py3 cpp14 java)
+readonly LANG_EXT=(.lisp .hs .py .cpp .java)
 
 readonly PYPATH=util/python
 readonly VENV_BIN=.venv/bin
@@ -17,6 +17,7 @@ usage() {
     ${LANGS[1]}
     ${LANGS[2]}
     ${LANGS[3]}
+    ${LANGS[4]}
 
   OPTIONS:
     -c, --clean                                        Remove files made when build
@@ -24,7 +25,7 @@ usage() {
     -g, --git-add      [PROBLEM NUMBER]                Staging [PROBLEM NUMBER] to git
     -h, --help                                         Print usage (LANG not needed)
     -l, --lint         [PROBLEM NUMBER]                Check haskell coding style (hlint using)
-    -m, --make-env     [url]                           Create need directory and file (LANG not needed)
+    -m, --make-env     [CONTEST_NAME] [TASK_NAME]      Create need directory and file (LANG not needed)
     --copy             [PROBLEM NUMBER]                Copy problem code
     -r, --run          [PROBLEM NUMBER]                Run haskell program (no input files)
     -a, --all-test     [PROBLEM NUMBER]                Test the program is green or red
@@ -64,7 +65,11 @@ sourcePath() {
   local iter=0
   for lang_ in "${LANGS[@]}"; do
     if [ ${L} == ${lang_} ]; then
-      declare -r SOURCE="src/${L}/${PROBLEM}/${PROBLEM}${LANG_EXT[${iter}]}"
+      if [ ${L} == "java" ]; then
+        declare -r SOURCE="src/${L}/${PROBLEM}/Main${LANG_EXT[${iter}]}"
+      else
+        declare -r SOURCE="src/${L}/${PROBLEM}/${PROBLEM}${LANG_EXT[${iter}]}"
+      fi
       break
     fi
     (( iter++ ))
@@ -171,6 +176,9 @@ run() {
       exit 1
     fi
     $(dirname ${SOURCE})/a.out
+  elif [ ${L} == ${LANGS[4]} ]; then
+    javac ${SOURCE}
+    java -classpath $(dirname ${SOURCE}) Main
   else
     echo "LANG must be one of the following: ${LANGS}" 1>&2
     exit 1
@@ -283,29 +291,15 @@ allTest() {
 }
 
 makeEnv() {
-  if [ $# != 1 ]; then
-    echo "Usage: $0 <url>" 1>&2
+  if [ $# != 2 ]; then
+    echo "Usage: $0 <CONTEST_NAME> <TASK_NAME>" 1>&2
     exit 1
   fi
 
-  declare -r URL=$1
-  # declare -r PROBLEM=$1
-  # declare -r URL=$2
-  # declare -r DIR="src/LANG/${PROBLEM}"
-  # declare -r INPUT="test/${PROBLEM}/input"
-  # declare -r OUTPUT="test/${PROBLEM}/output"
+  declare -r CONTEST_NAME=$1
+  declare -r TASK_NAME=$2
 
-  # local i=0
-  # for l in "${LANGS[@]}"; do
-  #   d=${DIR/LANG/${l}}
-  #   mkdir -p ${d}
-  #   (( i++ ))
-  # done
-  #
-  # mkdir -p ${INPUT} ${OUTPUT}
-
-  ${PYPATH}/${VENV_BIN}/python ${PYPATH}/AtCoder.py ${URL} "${LANGS[@]}"
-  # ${PYPATH}/${VENV_BIN}/python ${PYPATH}/storeInputOutput.py ${URL} ${PROBLEM}
+  ${PYPATH}/${VENV_BIN}/python ${PYPATH}/AtCoder.py --contest_name ${CONTEST_NAME} --task_name ${TASK_NAME} --langs "${LANGS[@]}"
 }
 
 lint() {
@@ -353,7 +347,7 @@ copy() {
 }
 
 clean() {
-  source_dirs=$(find ./src/{clisp,haskell,py3,cpp14} -mindepth 1 -maxdepth 1 -type d)
+  source_dirs=$(find ./src/{clisp,haskell,py3,cpp14,java} -mindepth 1 -maxdepth 1 -type d)
   for program_dir in ${source_dirs}; do
     program=$(basename ${program_dir})
     pushd ${program_dir} >/dev/null
@@ -428,14 +422,18 @@ for opt in "$@"; do
 
     '-m' | '--make-env' )
       if [[ -z "${2:-}" ]] || [[ "${2:-}" =~ ^-+ ]]; then
-        echo "$0: option requires problem number and url as argument -- $1" 1>&2
+        echo "$0: option requires contest name as argument -- $1" 1>&2
+        exit 1
+      fi
+      if [[ -z "${3:-}" ]] || [[ "${3:-}" =~ ^-+ ]]; then
+        echo "$0: option requires task name as argument -- $1" 1>&2
         exit 1
       fi
       # prob_number="$2"
-      url="$2"
-      shift 2
-      makeEnv ${url}
-      # makeEnv ${prob_number} ${url}
+      contest_name="$2"
+      task_name="$3"
+      shift 3
+      makeEnv ${contest_name} ${task_name}
       ;;
 
      '--copy' )

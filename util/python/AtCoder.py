@@ -8,6 +8,7 @@ import json
 import os
 import re
 import sys
+from typing import List
 
 from bs4 import BeautifulSoup
 from cryptography.fernet import Fernet
@@ -122,6 +123,15 @@ def downloadSamples(url,
                for part in parts
                if re.search('Sample Output (\d+)', part.h3.get_text())]
 
+    if not inputs and not outputs:
+        print('Failed getting sample input and output.')
+        inputs = [part.pre.get_text()
+                  for part in parts
+                  if re.search('入力例 (\d+)', part.h3.get_text())]
+        outputs = [part.pre.get_text()
+                   for part in parts
+                   if re.search('出力例 (\d+)', part.h3.get_text())]
+
     for i, text in enumerate(inputs):
         save(input_path, i, text)
     for i, text in enumerate(outputs):
@@ -146,7 +156,7 @@ def problemIdFromUrl(url):
     return parsed.path.split('/')[-1]
 
 
-def prepare(url, langs):
+def prepare(url, *langs):
     """Prepare environment to solve problem."""
     problem_id = problemIdFromUrl(url)
     input_path = TEST_PATH.joinpath(problem_id, 'input')
@@ -162,10 +172,19 @@ def prepare(url, langs):
     downloadSamples(url, input_path, output_path, session)
 
 
-def main(argv):
+def main(contest_name: str, task_name: str, langs: List[str]):
     """Main function."""
-    prepare(argv[1], argv[2:])
+    url = f'https://atcoder.jp/contests/{contest_name}/tasks/{contest_name}_{task_name}'
+    prepare(url, *langs)
 
 
 if __name__ == '__main__':
-    sys.exit(main(sys.argv))
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--contest_name', '-c', help='contest name (ex. abc155)')
+    parser.add_argument('--task_name', '-t', help='task name (ex. a)')
+    parser.add_argument('--langs', '-l', nargs='*', help='languages')
+    args = parser.parse_args()
+
+    sys.exit(main(args.contest_name, args.task_name, args.langs))
+
