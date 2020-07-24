@@ -1,6 +1,5 @@
-# AtCoderの問題を好きな言語で解く
+# AtCoder練習用環境
 
-AtCoderの好きな言語で解くための環境．  
 [aoj_haskell_training](https://github.com/fhiyo/aoj_haskell_training)の流用．
 
 ## 準備
