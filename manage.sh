@@ -3,7 +3,7 @@
 
 set -u
 
-readonly LANGS=(clisp haskell py3 cpp14 java)
+readonly LANGS=(clisp haskell py3 cpp17 java)
 readonly LANG_EXT=(.lisp .hs .py .cpp .java)
 
 readonly PYPATH=util/python
@@ -20,19 +20,21 @@ usage() {
     ${LANGS[4]}
 
   OPTIONS:
-    -c, --clean                                        Remove files made when build
-    -e, --edit         [PROBLEM NUMBER]                Edit source file
-    -g, --git-add      [PROBLEM NUMBER]                Staging [PROBLEM NUMBER] to git
-    -h, --help                                         Print usage (LANG not needed)
-    -l, --lint         [PROBLEM NUMBER]                Check haskell coding style (hlint using)
-    -m, --make-env     [CONTEST_NAME] [TASK_NAME]      Create need directory and file (LANG not needed)
-    --copy             [PROBLEM NUMBER]                Copy problem code
-    -r, --run          [PROBLEM NUMBER]                Run haskell program (no input files)
-    -a, --all-test     [PROBLEM NUMBER]                Test the program is green or red
-    -t, --test         [PROBLEM NUMBER] [TEST NUMBER]  Only run particular test program (specified by [TEST NUMBER])
+    -h, --help                                                      Print usage (LANG not needed)
+    --open                          [PROBLEM NUMBER]                Open web page (LANG not needed)
+    -m, --make-env                  [CONTEST_NAME]   [TASK_NAME]    Create need directory and file (LANG not needed)
 
-    -i, --add-input    [PROBLEM NUMBER]                Add input text file
-    -o, --add-output   [PROBLEM NUMBER]                Add output text file
+    -c, --clean                                                     Remove files made when build
+    -e, --edit                      [PROBLEM NUMBER]                Edit source file
+    -g, --git-add                   [PROBLEM NUMBER]                Staging [PROBLEM NUMBER] to git
+    -l, --lint                      [PROBLEM NUMBER]                Check haskell coding style (hlint using)
+    --copy                          [PROBLEM NUMBER]                Copy problem code
+    -r, --run                       [PROBLEM NUMBER]                Run haskell program (no input files)
+    -a, --all-test                  [PROBLEM NUMBER]                Test the program is green or red
+    -t, --test                      [PROBLEM NUMBER] [TEST NUMBER]  Only run particular test program (specified by [TEST NUMBER])
+    -i, --add-input                 [PROBLEM NUMBER]                Add input text file
+    -o, --add-output                [PROBLEM NUMBER]                Add output text file
+    --cc, --copy_code_and_open_page [PROBLEM NUMBER]                Copy code and open problem page
   "
 }
 
@@ -141,7 +143,7 @@ edit() {
   declare -r SOURCE=$(sourcePath ${L} ${PROBLEM})
   declare -r DIR=$(dirname ${SOURCE})
 
-  vim ${SOURCE}
+  code -n *.code-workspace ${SOURCE}
 }
 
 run() {
@@ -168,8 +170,7 @@ run() {
   elif [ ${L} == ${LANGS[2]} ]; then
     ${PYPATH}/${VENV_BIN}/python ${SOURCE}
   elif [ ${L} == ${LANGS[3]} ]; then
-    # /var/folders/で始まるwarning: http://kazune-lab.net/diary/2017/07/24/alias/
-    g++-5 -std=gnu++1y -O2 -o $(dirname ${SOURCE})/a.out ${SOURCE} 2>&1 | grep -v -e '^/var/folders/*' -e '^[[:space:]]*\.section' -e '^[[:space:]]*\^[[:space:]]*~*'
+    g++-9 -std=gnu++17 -Wall -Wextra -O2 -DONLINE_JUDGE -I/usr/local/Cellar/boost/1.72.0_3/include -L/usr/local/Cellar/boost/1.72.0_3/lib -o $(dirname ${SOURCE})/a.out ${SOURCE}
     # XXX: grepの仕様で、matchしない場合のexit statusが1になるのでそこを吸収する
     if [[ $? -ne 0 && $? -ne 1 ]]; then
       echo "g++ comlile is failed..." >&2
@@ -290,6 +291,18 @@ allTest() {
   fi
 }
 
+copyCodeAndOpenPage() {
+  if [ $# != 2 ]; then
+    echo "Usage: $0 <LANG> <problem_number> <test_number>" 1>&2
+    exit 1
+  fi
+
+  declare -r L=$1
+  declare -r PROBLEM=$2
+
+  ${PYPATH}/${VENV_BIN}/python ${PYPATH}/copy_code_and_open_page.py --problem_number ${PROBLEM} --lang "${L}"
+}
+
 makeEnv() {
   if [ $# != 2 ]; then
     echo "Usage: $0 <CONTEST_NAME> <TASK_NAME>" 1>&2
@@ -299,7 +312,18 @@ makeEnv() {
   declare -r CONTEST_NAME=$1
   declare -r TASK_NAME=$2
 
-  ${PYPATH}/${VENV_BIN}/python ${PYPATH}/AtCoder.py --contest_name ${CONTEST_NAME} --task_name ${TASK_NAME} --langs "${LANGS[@]}"
+  ${PYPATH}/${VENV_BIN}/python ${PYPATH}/download_samples.py --contest_name ${CONTEST_NAME} --task_name ${TASK_NAME} --langs "${LANGS[@]}"
+}
+
+openPage() {
+  if [ $# != 1 ]; then
+    echo "Usage: $0 <PROB_NUMBER>" 1>&2
+    exit 1
+  fi
+
+  declare -r PROB_NUMBER=$1
+
+  open "https://atcoder.jp/contests/${PROB_NUMBER%_*}/tasks/${PROB_NUMBER}"
 }
 
 lint() {
@@ -347,7 +371,7 @@ copy() {
 }
 
 clean() {
-  source_dirs=$(find ./src/{clisp,haskell,py3,cpp14,java} -mindepth 1 -maxdepth 1 -type d)
+  source_dirs=$(find ./src/{clisp,haskell,py3,cpp17,java} -mindepth 1 -maxdepth 1 -type d)
   for program_dir in ${source_dirs}; do
     program=$(basename ${program_dir})
     pushd ${program_dir} >/dev/null
@@ -368,7 +392,7 @@ if [ $# == 0 ]; then
   exit 1
 fi
 
-# Move directory to this script file exists 
+# Move directory to this script file exists
 # WARN: Work only not exists symbolic link!
 cd ${SOURCE_DIR}
 
@@ -446,6 +470,15 @@ for opt in "$@"; do
       copy ${lang} ${prob_number}
       ;;
 
+    '--open' )
+      if [[ -z "${2:-}" ]] || [[ "${2:-}" =~ ^-+ ]]; then
+        echo "$0: option requires problem number as argument -- $1" 1>&2
+        exit 1
+      fi
+      prob_number="$2"
+      openPage ${prob_number}
+      ;;
+
     '-r' | '--run' )
       if [[ -z "${2:-}" ]] || [[ "${2:-}" =~ ^-+ ]]; then
         echo "$0: option requires problem number as argument -- $1" 1>&2
@@ -481,6 +514,16 @@ for opt in "$@"; do
       test_ ${lang} ${prob_number} ${test_number}
       ;;
 
+     '--cc' | '--copy_code_and_open_page' )
+      if [[ -z "${2:-}" ]] || [[ "${2:-}" =~ ^-+ ]]; then
+        echo "$0: option requires problem number as argument -- $1" 1>&2
+        exit 1
+      fi
+      prob_number="$2"
+      shift 2
+      copyCodeAndOpenPage ${lang} ${prob_number}
+      ;;
+
     '-i' | '--add-input' )
       if [[ -z "${2:-}" ]] || [[ "${2:-}" =~ ^-+ ]]; then
         echo "$0: option requires problem number as argument -- $1" 1>&2
@@ -500,5 +543,6 @@ for opt in "$@"; do
       shift 2
       addOutput ${prob_number}
       ;;
+
   esac
 done
