@@ -28,12 +28,12 @@ usage() {
     -e, --edit                      [PROBLEM NUMBER]                Edit source file
     -g, --git-add                   [PROBLEM NUMBER]                Staging [PROBLEM NUMBER] to git
     -l, --lint                      [PROBLEM NUMBER]                Check haskell coding style (hlint using)
-    --copy                          [PROBLEM NUMBER]                Copy problem code
     -r, --run                       [PROBLEM NUMBER]                Run haskell program (no input files)
     -a, --all-test                  [PROBLEM NUMBER]                Test the program is green or red
     -t, --test                      [PROBLEM NUMBER] [TEST NUMBER]  Only run particular test program (specified by [TEST NUMBER])
     -i, --add-input                 [PROBLEM NUMBER]                Add input text file
     -o, --add-output                [PROBLEM NUMBER]                Add output text file
+    --copy                          [PROBLEM NUMBER]                Copy code
     --cc, --copy_code_and_open_page [PROBLEM NUMBER]                Copy code and open problem page
   "
 }
@@ -170,6 +170,9 @@ run() {
   elif [ ${L} == ${LANGS[2]} ]; then
     ${PYPATH}/${VENV_BIN}/python ${SOURCE}
   elif [ ${L} == ${LANGS[3]} ]; then
+    if [ -f ${SOURCE}/a.out ]; then
+      rm ${SOURCE}/a.out
+    fi
     g++-9 -std=gnu++17 -Wall -Wextra -O2 -DONLINE_JUDGE -I/usr/local/Cellar/boost/1.72.0_3/include -L/usr/local/Cellar/boost/1.72.0_3/lib -o $(dirname ${SOURCE})/a.out ${SOURCE}
     # XXX: grepの仕様で、matchしない場合のexit statusが1になるのでそこを吸収する
     if [[ $? -ne 0 && $? -ne 1 ]]; then
@@ -291,7 +294,7 @@ allTest() {
   fi
 }
 
-copyCodeAndOpenPage() {
+copyCode() {
   if [ $# != 2 ]; then
     echo "Usage: $0 <LANG> <problem_number> <test_number>" 1>&2
     exit 1
@@ -301,6 +304,19 @@ copyCodeAndOpenPage() {
   declare -r PROBLEM=$2
 
   ${PYPATH}/${VENV_BIN}/python ${PYPATH}/copy_code_and_open_page.py --problem_number ${PROBLEM} --lang "${L}"
+}
+
+
+copyCodeAndOpenPage() {
+  if [ $# != 2 ]; then
+    echo "Usage: $0 <LANG> <problem_number> <test_number>" 1>&2
+    exit 1
+  fi
+
+  declare -r L=$1
+  declare -r PROBLEM=$2
+
+  ${PYPATH}/${VENV_BIN}/python ${PYPATH}/copy_code_and_open_page.py --problem_number ${PROBLEM} --lang "${L}" --open
 }
 
 makeEnv() {
@@ -354,20 +370,6 @@ lint() {
     echo "LANG must be one of the following: ${LANGS}" 1>&2
     exit 1
   fi
-}
-
-copy() {
-  if [ $# != 2 ]; then
-    echo "Usage: $0 <LANG> <problem_number>" 1>&2
-    exit 1
-  fi
-
-  declare -r L=$1
-  declare -r PROBLEM=$2
-  declare -r SOURCE=$(sourcePath ${L} ${PROBLEM})
-
-  isExist ${SOURCE}
-  cat ${SOURCE} | pbcopy
 }
 
 clean() {
@@ -460,16 +462,6 @@ for opt in "$@"; do
       makeEnv ${contest_name} ${task_name}
       ;;
 
-     '--copy' )
-      if [[ -z "${2:-}" ]] || [[ "${2:-}" =~ ^-+ ]]; then
-        echo "$0: option requires problem number as argument -- $1" 1>&2
-        exit 1
-      fi
-      prob_number="$2"
-      shift 2
-      copy ${lang} ${prob_number}
-      ;;
-
     '--open' )
       if [[ -z "${2:-}" ]] || [[ "${2:-}" =~ ^-+ ]]; then
         echo "$0: option requires problem number as argument -- $1" 1>&2
@@ -512,6 +504,16 @@ for opt in "$@"; do
       test_number="$3"
       shift 3
       test_ ${lang} ${prob_number} ${test_number}
+      ;;
+
+     '--copy' )
+      if [[ -z "${2:-}" ]] || [[ "${2:-}" =~ ^-+ ]]; then
+        echo "$0: option requires problem number as argument -- $1" 1>&2
+        exit 1
+      fi
+      prob_number="$2"
+      shift 2
+      copyCode ${lang} ${prob_number}
       ;;
 
      '--cc' | '--copy_code_and_open_page' )
