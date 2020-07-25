@@ -18,3 +18,5 @@ util/settings/*
 !util/settings/.gitkeep
 *.code-workspace
 
+/src/*
+/test/*
