@@ -3,6 +3,7 @@ import sys
 from typing import List
 import webbrowser
 from collections import namedtuple
+import re
 
 import requests
 
@@ -13,8 +14,7 @@ from download_samples import login, problemIdFromUrl
 Lang = namedtuple('Lang', ('name', 'extension', 'comment_pattern'))
 
 LANGS = {
-    # XXX: 本当はcomment_pattern正規表現にしたいけどサボる
-    'cpp17': Lang('cpp17', 'cpp', '// '),
+    'cpp17': Lang('cpp17', 'cpp', re.compile(r'\s*// ')),
 }
 
 
@@ -22,8 +22,7 @@ def get_formatted_code(probmem_number: str, lang: Lang) -> List[str]:
     # 自分のコードを取得し、コメントアウトを除き、EOF前のwhitespaceを捨てる
     source_file_path = SRC_PATH / lang.name / f'{probmem_number}/{probmem_number}.{lang.extension}'
     with open(source_file_path) as f:
-        # NOTE: 末尾の改行コードを削るために配列の末尾だけ無視している
-        source = list(map(lambda l: l[:-1], filter(lambda l: not l.startswith(lang.comment_pattern), f.readlines())))
+        source = list(map(lambda l: l.rstrip('\r\n'), filter(lambda l: not lang.comment_pattern.match(l), f.readlines())))
         line_idx = len(source)  # 1-index
         for line in reversed(source):
             if line != '':

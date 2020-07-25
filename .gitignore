@@ -19,5 +19,7 @@ util/settings/*
 *.code-workspace
 
 /src/*
+!/src/!.gitkeep
 /test/*
+!/test/!.gitkeep
 .vscode/*
