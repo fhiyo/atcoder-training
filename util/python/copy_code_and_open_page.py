@@ -38,7 +38,8 @@ def main(probmem_number: str, lang_name: str, open: bool):
     if not lang_name in LANGS.keys():
         raise NotImplementedError(f"Invalid lang.\n Supported language: {list(LANGS.keys())}")
 
-    contest_name = probmem_number.partition('_')[0]
+    # こういう例があった: https://atcoder.jp/contests/pakencamp-2019-day3/tasks/pakencamp_2019_day3_c
+    contest_name = probmem_number.rpartition('_')[0].replace('_', '-')
     url = f'https://atcoder.jp/contests/{contest_name}/tasks/{probmem_number}'
     get_formatted_code(probmem_number, LANGS[lang_name])
 
