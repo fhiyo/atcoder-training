@@ -173,7 +173,7 @@ run() {
     if [ -f ${SOURCE}/a.out ]; then
       rm ${SOURCE}/a.out
     fi
-    g++-9 -std=gnu++17 -Wall -Wextra -O2 -DONLINE_JUDGE -I/usr/local/Cellar/boost/1.72.0_3/include -L/usr/local/Cellar/boost/1.72.0_3/lib -o $(dirname ${SOURCE})/a.out ${SOURCE}
+    g++-9 -std=gnu++17 -Wall -Wextra -O2 -DONLINE_JUDGE -I/usr/local/Cellar/boost/1.74.0/include -L/usr/local/Cellar/boost/1.74.0/lib -o $(dirname ${SOURCE})/a.out ${SOURCE}
     # XXX: grepの仕様で、matchしない場合のexit statusが1になるのでそこを吸収する
     if [[ $? -ne 0 && $? -ne 1 ]]; then
       echo "g++ comlile is failed..." >&2
@@ -328,7 +328,7 @@ makeEnv() {
   declare -r CONTEST_NAME=$1
   declare -r TASK_NAME=$2
 
-  ${PYPATH}/${VENV_BIN}/python ${PYPATH}/download_samples.py --contest_name ${CONTEST_NAME} --task_name ${TASK_NAME} --langs "${LANGS[@]}"
+  ${PYPATH}/${VENV_BIN}/python ${PYPATH}/download_samples.py --contest_name ${CONTEST_NAME} --task_number ${TASK_NAME} --langs "${LANGS[@]}"
 }
 
 openPage() {

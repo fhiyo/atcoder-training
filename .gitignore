@@ -23,3 +23,4 @@ util/settings/*
 /test/*
 !/test/!.gitkeep
 .vscode/*
+.idea/*

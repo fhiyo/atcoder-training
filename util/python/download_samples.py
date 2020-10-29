@@ -124,13 +124,15 @@ def downloadSamples(url,
                if re.search('Sample Output (\d+)', part.h3.get_text())]
 
     if not inputs and not outputs:
-        print('Failed getting sample input and output.')
         inputs = [part.pre.get_text()
                   for part in parts
                   if re.search('入力例 (\d+)', part.h3.get_text())]
         outputs = [part.pre.get_text()
                    for part in parts
                    if re.search('出力例 (\d+)', part.h3.get_text())]
+
+    if not inputs and not outputs:
+        print('Failed getting sample input and output.')
 
     for i, text in enumerate(inputs):
         save(input_path, i, text)
@@ -172,9 +174,12 @@ def prepare(url, *langs):
     downloadSamples(url, input_path, output_path, session)
 
 
-def main(contest_name: str, task_name: str, langs: List[str]):
+def main(contest_name: str, task_number: str, langs: List[str]):
     """Main function."""
-    url = f'https://atcoder.jp/contests/{contest_name}/tasks/{contest_name}_{task_name}'
+    # こういう例があった: https://atcoder.jp/contests/pakencamp-2019-day3/tasks/pakencamp_2019_day3_c
+    task_name = f"{contest_name.replace('-', '_')}_{task_number}"
+    url = f'https://atcoder.jp/contests/{contest_name}/tasks/{task_name}'
+
     prepare(url, *langs)
 
 
@@ -182,8 +187,8 @@ if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument('--contest_name', '-c', help='contest name (ex. abc155)')
-    parser.add_argument('--task_name', '-t', help='task name (ex. a)')
+    parser.add_argument('--task_number', '-t', help='task number (ex. a)')
     parser.add_argument('--langs', '-l', nargs='*', help='languages')
     args = parser.parse_args()
 
-    sys.exit(main(args.contest_name, args.task_name, args.langs))
+    sys.exit(main(args.contest_name, args.task_number, args.langs))
