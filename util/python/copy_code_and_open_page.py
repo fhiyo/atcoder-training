@@ -14,8 +14,8 @@ from download_samples import login, problemIdFromUrl
 Lang = namedtuple('Lang', ('name', 'extension', 'comment_pattern'))
 
 LANGS = {
-    'cpp17': Lang('cpp17', 'cpp', re.compile(r'\s*// ')),
-    'py3': Lang('py3', 'py', re.compile(r'\s*# ')),
+    'cpp17': Lang('cpp17', 'cpp', re.compile(r'\s*//')),
+    'py3': Lang('py3', 'py', re.compile(r'\s*#')),
 }
 
 
