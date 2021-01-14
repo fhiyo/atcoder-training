@@ -22,7 +22,7 @@ usage() {
   OPTIONS:
     -h, --help                                                      Print usage (LANG not needed)
     --open                          [PROBLEM NUMBER]                Open web page (LANG not needed)
-    -m, --make-env                  [CONTEST_NAME]   [TASK_NAME]    Create need directory and file (LANG not needed)
+    -m, --make-env                  [URL]                           Create need directory and file (LANG not needed)
 
     -c, --clean                                                     Remove files made when build
     -e, --edit                      [PROBLEM NUMBER]                Edit source file
@@ -320,15 +320,14 @@ copyCodeAndOpenPage() {
 }
 
 makeEnv() {
-  if [ $# != 2 ]; then
-    echo "Usage: $0 <CONTEST_NAME> <TASK_NAME>" 1>&2
+  if [ $# != 1 ]; then
+    echo "Usage: $0 <URL>" 1>&2
     exit 1
   fi
 
-  declare -r CONTEST_NAME=$1
-  declare -r TASK_NAME=$2
+  declare -r URL=$1
 
-  ${PYPATH}/${VENV_BIN}/python ${PYPATH}/download_samples.py --contest_name ${CONTEST_NAME} --task_number ${TASK_NAME} --langs "${LANGS[@]}"
+  ${PYPATH}/${VENV_BIN}/python ${PYPATH}/download_samples.py --url ${URL} --langs "${LANGS[@]}"
 }
 
 openPage() {
@@ -451,15 +450,9 @@ for opt in "$@"; do
         echo "$0: option requires contest name as argument -- $1" 1>&2
         exit 1
       fi
-      if [[ -z "${3:-}" ]] || [[ "${3:-}" =~ ^-+ ]]; then
-        echo "$0: option requires task name as argument -- $1" 1>&2
-        exit 1
-      fi
-      # prob_number="$2"
-      contest_name="$2"
-      task_name="$3"
-      shift 3
-      makeEnv ${contest_name} ${task_name}
+      url="$2"
+      shift 2
+      makeEnv ${url}
       ;;
 
     '--open' )
