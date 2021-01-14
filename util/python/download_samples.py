@@ -103,7 +103,7 @@ def login(session,
                 print(SUCCESS_MSG)
 
 
-def downloadSamples(url,
+def downloadSamples(url: urllib.parse.ParseResult,
                     input_path,
                     output_path,
                     session):
@@ -112,7 +112,7 @@ def downloadSamples(url,
 
     login(session, problem_id)
 
-    resp = session.request('GET', url)
+    resp = session.request('GET', url.geturl())
     soup = BeautifulSoup(resp.text, 'html.parser')
     parts = soup.find_all('div', class_='part')
 
@@ -146,21 +146,28 @@ def save(path, idx, text):
         f.write(text.replace('\r\n', '\n')) if os.name == 'posix' else f.write(text)
 
 
-def contestIdFromUrl(url):
-    """Get contest id from url."""
-    parsed = urllib.parse.urlparse(url)
-    return parsed.netloc.split('.')[0]
-
-
-def problemIdFromUrl(url):
+def problemIdFromUrl(url: urllib.parse.ParseResult):
     """Get proglem id from url."""
-    parsed = urllib.parse.urlparse(url)
-    return parsed.path.split('/')[-1]
+    if atcoder_url(url):
+        return url.path.split('/')[-1]
+    elif aizu_url(url):
+        return re.search(r'id=(?P<id>\w+)(&.+)?', url.query).group('id')
+    else:
+        Exception(f'Unsupported url. url: {url.geturl()}')
 
 
-def prepare(url, *langs):
+def atcoder_url(url: urllib.parse.ParseResult) -> bool:
+    return re.search(r'atcoder', url.netloc)
+
+
+def aizu_url(url: urllib.parse.ParseResult) -> bool:
+    return url.netloc == 'judge.u-aizu.ac.jp'
+
+
+def prepare(url: str, *langs):
     """Prepare environment to solve problem."""
-    problem_id = problemIdFromUrl(url)
+    parsed_url = urllib.parse.urlparse(url)
+    problem_id = problemIdFromUrl(parsed_url)
     input_path = TEST_PATH.joinpath(problem_id, 'input')
     output_path = input_path.parent.joinpath('output')
 
@@ -171,24 +178,20 @@ def prepare(url, *langs):
 
     session = requests.Session()
 
-    downloadSamples(url, input_path, output_path, session)
+    if atcoder_url(parsed_url):
+        downloadSamples(parsed_url, input_path, output_path, session)
 
 
-def main(contest_name: str, task_number: str, langs: List[str]):
+def main(url: str, langs: List[str]):
     """Main function."""
-    # こういう例があった: https://atcoder.jp/contests/pakencamp-2019-day3/tasks/pakencamp_2019_day3_c
-    task_name = f"{contest_name.replace('-', '_')}_{task_number}"
-    url = f'https://atcoder.jp/contests/{contest_name}/tasks/{task_name}'
-
     prepare(url, *langs)
 
 
 if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser()
-    parser.add_argument('--contest_name', '-c', help='contest name (ex. abc155)')
-    parser.add_argument('--task_number', '-t', help='task number (ex. a)')
+    parser.add_argument('--url', '-u', help='contest url.')
     parser.add_argument('--langs', '-l', nargs='*', help='languages')
     args = parser.parse_args()
 
-    sys.exit(main(args.contest_name, args.task_number, args.langs))
+    sys.exit(main(args.url, args.langs))

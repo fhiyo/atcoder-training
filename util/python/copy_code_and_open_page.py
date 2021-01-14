@@ -19,9 +19,9 @@ LANGS = {
 }
 
 
-def get_formatted_code(probmem_number: str, lang: Lang) -> List[str]:
+def get_formatted_code(problem_number: str, lang: Lang) -> List[str]:
     # 自分のコードを取得し、コメントアウトを除き、EOF前のwhitespaceを捨てる
-    source_file_path = SRC_PATH / lang.name / f'{probmem_number}/{probmem_number}.{lang.extension}'
+    source_file_path = SRC_PATH / lang.name / f'{problem_number}/{problem_number}.{lang.extension}'
     with open(source_file_path) as f:
         source = list(map(lambda l: l.rstrip('\r\n'), filter(lambda l: not lang.comment_pattern.match(l), f.readlines())))
         line_idx = len(source)  # 1-index
@@ -34,14 +34,14 @@ def get_formatted_code(probmem_number: str, lang: Lang) -> List[str]:
     subprocess.run("pbcopy", universal_newlines=True, input='\n'.join(source[:line_idx]))
 
 
-def main(probmem_number: str, lang_name: str, open: bool):
+def main(problem_number: str, lang_name: str, open: bool):
     if not lang_name in LANGS.keys():
         raise NotImplementedError(f"Invalid lang.\n Supported language: {list(LANGS.keys())}")
 
     # こういう例があった: https://atcoder.jp/contests/pakencamp-2019-day3/tasks/pakencamp_2019_day3_c
-    contest_name = probmem_number.rpartition('_')[0].replace('_', '-')
-    url = f'https://atcoder.jp/contests/{contest_name}/tasks/{probmem_number}'
-    get_formatted_code(probmem_number, LANGS[lang_name])
+    contest_name = problem_number.rpartition('_')[0].replace('_', '-')
+    url = f'https://atcoder.jp/contests/{contest_name}/tasks/{problem_number}'
+    get_formatted_code(problem_number, LANGS[lang_name])
 
     if open:
         # loginする
