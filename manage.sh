@@ -8,6 +8,7 @@ readonly LANG_EXT=(.lisp .hs .py .cpp .java)
 
 readonly PYPATH=util/python
 readonly VENV_BIN=.venv/bin
+readonly BOOST_PATH=/usr/local/Cellar/boost/1.75.0_1
 
 usage() {
   echo "Usage: $0 [LANG] OPTIONS [PROBLEM NUMBER]
@@ -173,7 +174,7 @@ run() {
     if [ -f ${SOURCE}/a.out ]; then
       rm ${SOURCE}/a.out
     fi
-    g++-9 -std=gnu++17 -Wall -Wextra -O2 -DONLINE_JUDGE -I/usr/local/Cellar/boost/1.74.0/include -L/usr/local/Cellar/boost/1.74.0/lib -o $(dirname ${SOURCE})/a.out ${SOURCE}
+    g++-9 -std=gnu++17 -Wall -Wextra -O2 -DONLINE_JUDGE -I${BOOST_PATH}/include -L${BOOST_PATH}/lib -o $(dirname ${SOURCE})/a.out ${SOURCE}
     # XXX: grepの仕様で、matchしない場合のexit statusが1になるのでそこを吸収する
     if [[ $? -ne 0 && $? -ne 1 ]]; then
       echo "g++ comlile is failed..." >&2
