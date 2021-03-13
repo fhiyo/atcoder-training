@@ -8,7 +8,7 @@ readonly LANG_EXT=(.lisp .hs .py .cpp .java)
 
 readonly PYPATH=util/python
 readonly VENV_BIN=.venv/bin
-readonly BOOST_PATH=/usr/local/Cellar/boost/1.75.0_1
+readonly BOOST_PATH=/usr/local/Cellar/boost/1.75.0_2
 
 usage() {
   echo "Usage: $0 [LANG] OPTIONS [PROBLEM NUMBER]
